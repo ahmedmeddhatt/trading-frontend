@@ -1,30 +1,76 @@
 // src/components/ui/Button.tsx
 import React from "react";
+import { Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "danger";
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "primary" | "secondary" | "danger" | "ghost" | "outline";
+  size?: "sm" | "md" | "lg";
+  loading?: boolean;
+  icon?: React.ReactNode;
+  fullWidth?: boolean;
 }
 
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    {
+      children,
+      variant = "primary",
+      size = "md",
+      loading = false,
+      icon,
+      fullWidth = false,
+      className,
+      disabled,
+      ...props
+    },
+    ref
+  ) => {
+    const variants = {
+      primary:
+        "bg-gradient-to-r from-green-primary to-green-hover hover:from-green-hover hover:to-green-primary text-dark-base font-semibold",
+      secondary:
+        "bg-dark-elevated hover:bg-dark-border text-text-primary border border-dark-border",
+      danger:
+        "bg-red-primary hover:bg-red-hover text-text-primary",
+      ghost:
+        "bg-transparent hover:bg-dark-elevated text-text-primary",
+      outline:
+        "bg-transparent border border-dark-border hover:border-green-primary text-text-primary hover:text-green-primary",
+    };
 
-// ui/Button.tsx
-export const Button: React.FC<any> = ({ children, variant = "primary", ...props }) => {
-  const variants: any = {
-    primary:
-      "bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-300 hover:to-blue-400 text-black font-bold",
-    secondary:
-      "bg-gray-700 hover:bg-gray-600 text-white",
-    danger:
-      "bg-red-600 hover:bg-red-700 text-white",
-  };
+    const sizes = {
+      sm: "px-3 py-1.5 text-sm",
+      md: "px-4 py-2 text-base",
+      lg: "px-6 py-3 text-lg",
+    };
 
-  return (
-    <button
-      className={`px-4 py-2 rounded-xl transition-all shadow-md ${variants[variant]}`}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-};
+    return (
+      <button
+        ref={ref}
+        className={cn(
+          "inline-flex items-center justify-center gap-2 rounded-lg transition-all duration-250",
+          "disabled:opacity-50 disabled:cursor-not-allowed",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-primary focus-visible:ring-offset-2 focus-visible:ring-offset-dark-base",
+          variants[variant],
+          sizes[size],
+          fullWidth && "w-full",
+          className
+        )}
+        disabled={disabled || loading}
+        {...props}
+      >
+        {loading ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          icon && <span className="flex-shrink-0">{icon}</span>
+        )}
+        {children}
+      </button>
+    );
+  }
+);
+
+Button.displayName = "Button";
 
 

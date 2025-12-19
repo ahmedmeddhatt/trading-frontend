@@ -1,6 +1,8 @@
 // src/components/dashboard/SnapshotsTable.tsx
 import { DailySnapshot } from "@/lib/api/analytics";
 import React from "react";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/Table";
+import { formatCurrency, formatPercentage } from "@/lib/utils/formatNumber";
 
 interface SnapshotsTableProps {
   snapshots: DailySnapshot[];
@@ -8,27 +10,39 @@ interface SnapshotsTableProps {
 
 export const SnapshotsTable: React.FC<SnapshotsTableProps> = ({ snapshots }) => {
   return (
-    <table className="w-full border-collapse border border-gray-300">
-      <thead>
-        <tr className="bg-gray-200">
-          <th className="p-2 border">Date</th>
-          <th className="p-2 border">Total Investment</th>
-          <th className="p-2 border">Total Result</th>
-          <th className="p-2 border">Gain/Loss</th>
-          <th className="p-2 border">Percent</th>
-        </tr>
-      </thead>
-      <tbody>
-        {snapshots.map((snap) => (
-          <tr key={snap._id} className="text-center">
-            <td className="p-2 border">{new Date(snap.date).toLocaleDateString()}</td>
-            <td className="p-2 border">${snap.totalInvestment?.toFixed(2)}</td>
-            <td className="p-2 border">${snap.totalResult?.toFixed(2)}</td>
-            <td className="p-2 border">${snap.gainLoss?.toFixed(2)}</td>
-            <td className="p-2 border">{snap.percent?.toFixed(2)}%</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div className="overflow-x-auto">
+      <Table className="bg-dark-elevated border border-dark-border">
+        <TableHeader>
+          <TableRow className="bg-dark-surface">
+            <TableHead className="p-3 md:p-4 border-b border-dark-border text-text-secondary">Date</TableHead>
+            <TableHead className="p-3 md:p-4 border-b border-dark-border text-text-secondary">Total Investment</TableHead>
+            <TableHead className="p-3 md:p-4 border-b border-dark-border text-text-secondary">Current Value</TableHead>
+            <TableHead className="p-3 md:p-4 border-b border-dark-border text-text-secondary">Unrealized P/L</TableHead>
+            <TableHead className="p-3 md:p-4 border-b border-dark-border text-text-secondary">% Change</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {snapshots.map((snap) => {
+            const percent = snap.totalInvestment > 0 
+              ? ((snap.totalUnrealizedPnL / snap.totalInvestment) * 100)
+              : 0;
+            
+            return (
+              <TableRow key={snap._id} className="border-b border-dark-border last:border-b-0 hover:bg-dark-surface/50 transition-colors duration-normal">
+                <TableCell className="p-3 md:p-4">{new Date(snap.date).toLocaleDateString()}</TableCell>
+                <TableCell className="p-3 md:p-4">{formatCurrency(snap.totalInvestment)}</TableCell>
+                <TableCell className="p-3 md:p-4">{formatCurrency(snap.totalCurrentValue)}</TableCell>
+                <TableCell className={`p-3 md:p-4 ${snap.totalUnrealizedPnL >= 0 ? "text-green-primary" : "text-red-primary"}`}>
+                  {formatCurrency(snap.totalUnrealizedPnL, { showSign: true })}
+                </TableCell>
+                <TableCell className={`p-3 md:p-4 ${percent >= 0 ? "text-green-primary" : "text-red-primary"}`}>
+                  {formatPercentage(percent, { showSign: true })}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </div>
   );
 };

@@ -1,32 +1,18 @@
 // src/store/positionsStore.ts
 import { create } from "zustand";
-import axios from "axios";
-
-export interface Position {
-  _id: string;
-  companyName: string;
-  stockPrice: number;
-  quantity: number;
-  investment: number;
-  investmentWithTax: number;
-  resultWithTax: number;
-  percentGainLoss: number;
-  status: "holding" | "sold" | "watching";
-  createdAt: string;
-  updatedAt: string;
-}
+import { PositionsAPI, Position, PositionPayload } from "@/lib/api/positions";
 
 interface PositionsState {
   positions: Position[];
   loading: boolean;
   error: string | null;
-  fetchPositions: () => void;
-  addPosition: (data: Partial<Position>) => Promise<void>;
-  updatePosition: (id: string, data: Partial<Position>) => Promise<void>;
+  fetchPositions: () => Promise<void>;
+  addPosition: (data: PositionPayload) => Promise<void>;
+  updatePosition: (id: string, data: Partial<PositionPayload>) => Promise<void>;
   deletePosition: (id: string) => Promise<void>;
 }
 
-export const usePositionsStore = create<PositionsState>((set) => ({
+export const usePositionsStore = create<PositionsState>((set, get) => ({
   positions: [],
   loading: false,
   error: null,
@@ -34,43 +20,50 @@ export const usePositionsStore = create<PositionsState>((set) => ({
   fetchPositions: async () => {
     set({ loading: true, error: null });
     try {
-      const res = await axios.get("/api/positions");
-      set({ positions: res.data, loading: false });
+      const data = await PositionsAPI.getAll();
+      set({ positions: data, loading: false });
     } catch (err: any) {
-      set({ error: err.message, loading: false });
+      const errorMessage = err.response?.data?.message || err.message || "Failed to fetch positions";
+      set({ error: errorMessage, loading: false });
     }
   },
 
   addPosition: async (data) => {
     set({ loading: true, error: null });
     try {
-      const res = await axios.post("/api/positions", data);
-      set((state) => ({ positions: [...state.positions, res.data], loading: false }));
+      const newPosition = await PositionsAPI.create(data);
+      set((state) => ({ positions: [...state.positions, newPosition], loading: false }));
     } catch (err: any) {
-      set({ error: err.message, loading: false });
+      const errorMessage = err.response?.data?.message || err.message || "Failed to add position";
+      set({ error: errorMessage, loading: false });
+      throw err;
     }
   },
 
   updatePosition: async (id, data) => {
     set({ loading: true, error: null });
     try {
-      const res = await axios.put(`/api/positions/${id}`, data);
+      const updated = await PositionsAPI.update(id, data);
       set((state) => ({
-        positions: state.positions.map((p) => (p._id === id ? res.data : p)),
+        positions: state.positions.map((p) => (p._id === id ? updated : p)),
         loading: false,
       }));
     } catch (err: any) {
-      set({ error: err.message, loading: false });
+      const errorMessage = err.response?.data?.message || err.message || "Failed to update position";
+      set({ error: errorMessage, loading: false });
+      throw err;
     }
   },
 
   deletePosition: async (id) => {
     set({ loading: true, error: null });
     try {
-      await axios.delete(`/api/positions/${id}`);
+      await PositionsAPI.delete(id);
       set((state) => ({ positions: state.positions.filter((p) => p._id !== id), loading: false }));
     } catch (err: any) {
-      set({ error: err.message, loading: false });
+      const errorMessage = err.response?.data?.message || err.message || "Failed to delete position";
+      set({ error: errorMessage, loading: false });
+      throw err;
     }
   },
 }));
