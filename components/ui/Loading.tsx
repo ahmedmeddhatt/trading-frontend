@@ -1,9 +1,26 @@
 // src/components/ui/Loading.tsx
 import React from "react";
+import { Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export const Loading = () => (
-  <div className="flex justify-center p-8">
-    <div className="h-10 w-10 border-4 border-green-400 border-t-transparent rounded-full animate-spin"></div>
-  </div>
-);
+interface LoadingProps {
+  className?: string;
+  size?: "sm" | "md" | "lg";
+  text?: string;
+}
+
+export const Loading: React.FC<LoadingProps> = ({ className, size = "md", text }) => {
+  const sizes = {
+    sm: "w-4 h-4",
+    md: "w-8 h-8",
+    lg: "w-12 h-12",
+  };
+
+  return (
+    <div className={cn("flex flex-col items-center justify-center p-8 gap-3", className)}>
+      <Loader2 className={cn("animate-spin text-green-primary", sizes[size])} />
+      {text && <p className="text-text-secondary text-sm">{text}</p>}
+    </div>
+  );
+};
 

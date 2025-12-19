@@ -19,6 +19,9 @@ export const Sidebar: React.FC = () => {
         <li>
           <Link href="/companies">Companies</Link>
         </li>
+        <li>
+          <Link href="/login">Login</Link>
+        </li>
       </ul>
     </aside>
   );

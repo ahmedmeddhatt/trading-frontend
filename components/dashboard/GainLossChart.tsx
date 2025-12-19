@@ -1,38 +1,90 @@
-// components/dashboard/gainLossChart.tsx
-import { DailySnapshot } from "@/lib/api/analytics";
-import React from "react";
+// Portfolio gain/loss chart using TradingView Lightweight Charts
+"use client";
 
-interface SnapshotsTableProps {
+import React, { useEffect, useRef } from "react";
+import { createChart, IChartApi, ISeriesApi, ColorType, AreaSeries } from "lightweight-charts";
+import { DailySnapshot } from "@/lib/api/analytics";
+import { chartColors } from "@/lib/charts/config";
+
+interface GainLossChartProps {
   snapshots: DailySnapshot[];
 }
 
-export const SnapshotsTable: React.FC<SnapshotsTableProps> = ({ snapshots }) => {
+export const GainLossChart: React.FC<GainLossChartProps> = ({ snapshots }) => {
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<IChartApi | null>(null);
+  const seriesRef = useRef<ISeriesApi<"Area"> | null>(null);
+
+  useEffect(() => {
+    if (!chartContainerRef.current) return;
+
+    const chart = createChart(chartContainerRef.current, {
+      layout: {
+        background: { type: ColorType.Solid, color: chartColors.background },
+        textColor: chartColors.text,
+      },
+      grid: {
+        vertLines: { color: chartColors.grid },
+        horzLines: { color: chartColors.grid },
+      },
+      width: chartContainerRef.current.clientWidth,
+      height: 300,
+      timeScale: {
+        timeVisible: true,
+        secondsVisible: false,
+      },
+      rightPriceScale: {
+        borderColor: chartColors.grid,
+      },
+    });
+
+    const series = chart.addSeries(AreaSeries, {
+      lineColor: chartColors.line,
+      topColor: chartColors.area,
+      bottomColor: chartColors.background,
+      lineWidth: 2,
+      priceFormat: {
+        type: "price",
+        precision: 2,
+        minMove: 0.01,
+      },
+    });
+
+    chartRef.current = chart;
+    seriesRef.current = series;
+
+    const handleResize = () => {
+      if (chartContainerRef.current && chart) {
+        chart.applyOptions({ width: chartContainerRef.current.clientWidth });
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      chart.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!seriesRef.current || !snapshots.length) return;
+
+    const data = snapshots
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      .map((snapshot) => ({
+        time: (new Date(snapshot.date).getTime() / 1000) as any,
+        value: snapshot.totalUnrealizedPnL || 0,
+      }));
+
+    seriesRef.current.setData(data);
+
+    if (chartRef.current) {
+      chartRef.current.timeScale().fitContent();
+    }
+  }, [snapshots]);
+
   return (
-    <table className="w-full border-collapse border border-gray-300 mt-4">
-      <thead>
-        <tr className="bg-gray-200">
-          <th className="p-2 border">Date</th>
-          <th className="p-2 border">Total Investment</th>
-          <th className="p-2 border">Current Value</th>
-          <th className="p-2 border">Unrealized PnL</th>
-        </tr>
-      </thead>
-      <tbody>
-        {snapshots.map((snap) => (
-          <tr key={snap._id} className="text-center">
-            <td className="p-2 border">{new Date(snap.date).toLocaleDateString()}</td>
-            <td className="p-2 border">${snap.totalInvestment.toFixed(2)}</td>
-            <td className="p-2 border">${snap.totalCurrentValue.toFixed(2)}</td>
-            <td
-              className={`p-2 border ${
-                snap.totalUnrealizedPnL >= 0 ? "text-green-600" : "text-red-600"
-              }`}
-            >
-              ${snap.totalUnrealizedPnL.toFixed(2)}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div ref={chartContainerRef} className="w-full" style={{ height: "300px" }} />
   );
 };

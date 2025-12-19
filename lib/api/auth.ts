@@ -12,10 +12,11 @@ export interface LoginPayload {
 }
 
 export interface User {
-  _id: string;
+  id: string;  // Backend returns 'id'
+  _id?: string; // Support both formats for compatibility
   name: string;
   email: string;
-  createdAt: string;
+  createdAt?: string;
 }
 
 export interface AuthResponse {

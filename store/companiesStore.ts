@@ -15,12 +15,13 @@ export const useCompaniesStore = create<CompaniesState>((set) => ({
   error: undefined,
 
   fetchCompanies: async () => {
-    set({ loading: true });
+    set({ loading: true, error: undefined });
     try {
       const data = await CompaniesAPI.aggregate();
-      set({ companies: data, loading: false });
+      set({ companies: data, loading: false, error: undefined });
     } catch (err: any) {
-      set({ error: err.message, loading: false });
+      const errorMessage = err.response?.data?.message || err.message || "Failed to fetch companies";
+      set({ error: errorMessage, loading: false });
     }
   },
 }));

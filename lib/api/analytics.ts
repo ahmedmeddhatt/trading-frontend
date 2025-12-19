@@ -1,28 +1,48 @@
 // src/lib/api/analytics.ts
 import { api } from "./client";
 
-export interface Summary {
+// ---------- TYPES (matching backend documentation) ----------
+export interface Position {
+  _id: string;
+  companyName: string;
+  totalQuantity: number;
+  avgPurchasePrice: number;
   totalInvestment: number;
-  totalResult: number;
-  totalGainLoss: number;
-  totalPercent: number;
+  totalFees: number;
+  investmentWithFees: number;
+  currentPrice?: number;
+  currentValue?: number;
+  unrealizedPnL?: number;
+  unrealizedPct?: number;
+  status: "holding" | "sold" | "watching";
+  [key: string]: any;
+}
+
+export interface Summary {
   count: number;
+  totalInvestment: number;
+  totalCurrentValue: number;
+  totalUnrealizedPnL: number;
+  totalPercent: number;
+  positions: Position[];
 }
 
 export interface CompanyAnalytics {
   companyName: string;
-  positions: any[];
+  positions: Position[];
   totalInvestment: number;
-  totalResult: number;
-  gainLoss: number;
-  percent: number;
+  totalCurrentValue: number;
+  unrealizedPnL: number;
+  unrealizedPct: number;
+  gainLoss: number; // Legacy field, same as unrealizedPnL
+  percent: number; // Legacy field, same as unrealizedPct
 }
 
 export interface SnapshotPosition {
-  positionId?: string;
+  positionId: string;
   companyName: string;
   quantity: number;
-  currentPrice: number;
+  currentPrice?: number;
   currentValue: number;
   unrealizedPnL: number;
 }
@@ -34,35 +54,31 @@ export interface DailySnapshot {
   totalInvestment: number;
   totalCurrentValue: number;
   totalUnrealizedPnL: number;
-  totalResult: number;
-  gainLoss: number;
-  percent: number;
   positions: SnapshotPosition[];
   createdAt?: string;
+  updatedAt?: string;
 }
 
-
-
-// ---------- API ----------
+// ---------- API FUNCTIONS ----------
 export const AnalyticsAPI = {
-  getSummary: async () => {
+  getSummary: async (): Promise<Summary> => {
     const res = await api.get<Summary>("/analytics/summary");
     return res.data;
   },
 
-  getCompanyAnalytics: async (company: string) => {
+  getCompanyAnalytics: async (companyName: string): Promise<CompanyAnalytics> => {
     const res = await api.get<CompanyAnalytics>(
-      `/analytics/company/${company}`
+      `/analytics/company/${encodeURIComponent(companyName)}`
     );
     return res.data;
   },
 
-  getSnapshots: async () => {
+  getSnapshots: async (): Promise<DailySnapshot[]> => {
     const res = await api.get<DailySnapshot[]>("/analytics/snapshots");
     return res.data;
   },
 
-  createSnapshot: async (date?: string) => {
+  createSnapshot: async (date?: string): Promise<DailySnapshot> => {
     const res = await api.post<DailySnapshot>("/analytics/snapshot", null, {
       params: date ? { date } : {},
     });

@@ -1,44 +1,259 @@
-/* ====== Dark Futuristic Trading Dashboard Theme ====== */
+@import 'tailwindcss';
 
+/* Design Tokens - Trading Platform */
 :root {
-  --bg-primary: #0d0f1a;
-  --bg-secondary: #161927;
-  --bg-card: rgba(255, 255, 255, 0.05);
-  --text-primary: #e2e8f0;
-  --text-secondary: #94a3b8;
+  /* Colors */
+  --color-dark-base: #0a0a0a;
+  --color-dark-surface: #121212;
+  --color-dark-elevated: #1a1a1a;
+  --color-dark-border: #2a2a2a;
+  
+  --color-green-primary: #00ff88;
+  --color-green-hover: #00cc6f;
+  --color-red-primary: #ff4444;
+  --color-red-hover: #cc3333;
+  
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #a3a3a3;
+  --color-text-tertiary: #737373;
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-2xl: 32px;
+  --spacing-3xl: 48px;
+  --spacing-4xl: 64px;
+  
+  /* Typography */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'SF Mono', Monaco, monospace;
+  
+  /* Transitions */
+  --transition-fast: 150ms;
+  --transition-normal: 250ms;
+  --transition-slow: 350ms;
+}
 
-  /* Neon Colors */
-  --neon-green: #4ade80;
-  --neon-blue: #60a5fa;
-  --neon-pink: #ec4899;
-  --neon-yellow: #facc15;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-  --card-shadow: 0px 0px 25px rgba(0, 255, 170, 0.08);
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 body {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: Inter, sans-serif;
+  font-family: var(--font-sans);
+  background-color: var(--color-dark-base);
+  color: var(--color-text-primary);
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding: 0;
+  margin: 0;
 }
 
-/* Glassmorphism */
+/* Safe area for mobile devices */
+@supports (padding: max(0px)) {
+  body {
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+  }
+}
+
+.safe-area-inset-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.pb-safe {
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+/* Glassmorphism utility */
 .glass {
-  background: var(--bg-card);
-  backdrop-filter: blur(18px);
+  background: rgba(26, 26, 26, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Neon Glow Hover */
-.neon-hover:hover {
-  box-shadow: 0px 0px 30px rgba(0, 255, 170, 0.25);
+/* Neon hover effect */
+.neon-hover {
+  transition: all var(--transition-normal) ease;
 }
 
-/* Fancy Scrollbar */
+.neon-hover:hover {
+  border-color: var(--color-green-primary);
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+}
+
+/* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
+
+::-webkit-scrollbar-track {
+  background: var(--color-dark-surface);
+}
+
 ::-webkit-scrollbar-thumb {
-  background: var(--neon-blue);
+  background: var(--color-dark-border);
   border-radius: 4px;
 }
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
+}
+
+/* Number formatting - tabular numbers */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid var(--color-green-primary);
+  outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+  background-color: var(--color-green-primary);
+  color: var(--color-dark-base);
+}
+
+/* Mobile optimizations */
+@media (max-width: 767px) {
+  body {
+    font-size: 14px;
+    /* Prevent text size adjustment on iOS */
+    -webkit-text-size-adjust: 100%;
+  }
+}
+
+/* Loading animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Skeleton loader */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-dark-elevated) 0%,
+    var(--color-dark-border) 50%,
+    var(--color-dark-elevated) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Enhanced animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s ease-out;
+}
+
+/* Smooth transitions for interactive elements */
+.interactive {
+  transition: all var(--transition-normal) ease;
+}
+
+.interactive:hover {
+  transform: translateY(-2px);
+}
+
+.interactive:active {
+  transform: translateY(0);
+}
+
+/* Focus visible improvements */
+*:focus-visible {
+  outline: 2px solid var(--color-green-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Better button states */
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Loading spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
