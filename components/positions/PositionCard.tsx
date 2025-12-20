@@ -92,9 +92,23 @@ export const PositionCard: React.FC<PositionCardProps> = ({
               <div>
                 <p className="text-xs text-text-tertiary mb-1">Current Value</p>
                 <p className="text-sm font-semibold text-text-primary">
-                  {position.currentValue
-                    ? formatCurrency(position.currentValue)
-                    : "N/A"}
+                  {(() => {
+                    // Use backend currentValue if available
+                    if (position.currentValue !== undefined && position.currentValue !== null) {
+                      return formatCurrency(position.currentValue);
+                    }
+                    // Calculate from currentPrice × totalQuantity
+                    if (
+                      position.currentPrice !== undefined &&
+                      position.currentPrice !== null &&
+                      position.totalQuantity !== undefined &&
+                      position.totalQuantity !== null
+                    ) {
+                      const calculated = position.currentPrice * position.totalQuantity;
+                      return formatCurrency(calculated);
+                    }
+                    return "N/A";
+                  })()}
                 </p>
               </div>
               <div>

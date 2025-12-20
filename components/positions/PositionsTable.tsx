@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { usePositions, useDeletePosition } from "@/hooks/api/usePositions";
 import { Button } from "@/components/ui/Button";
 import { PositionFormModal } from "./PositionFormModal";
@@ -13,8 +14,9 @@ import { Error } from "@/components/ui/Error";
 import { cn } from "@/lib/utils";
 
 export const PositionsTable: React.FC = () => {
-  const { data: positions = [], isLoading, error } = usePositions();
+  const { data: positions = [], isLoading, error, refetch } = usePositions();
   const deletePositionMutation = useDeletePosition();
+  const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -90,7 +92,25 @@ export const PositionsTable: React.FC = () => {
                   <TableCell className="p-3">{p.totalQuantity}</TableCell>
                   <TableCell className="p-3">{formatCurrency(p.avgPurchasePrice)}</TableCell>
                   <TableCell className="p-3">{formatCurrency(p.investmentWithFees)}</TableCell>
-                  <TableCell className="p-3">{p.currentValue ? formatCurrency(p.currentValue) : "N/A"}</TableCell>
+                  <TableCell className="p-3">
+                    {(() => {
+                      // Use backend currentValue if available
+                      if (p.currentValue !== undefined && p.currentValue !== null) {
+                        return formatCurrency(p.currentValue);
+                      }
+                      // Calculate from currentPrice × totalQuantity
+                      if (
+                        p.currentPrice !== undefined &&
+                        p.currentPrice !== null &&
+                        p.totalQuantity !== undefined &&
+                        p.totalQuantity !== null
+                      ) {
+                        const calculated = p.currentPrice * p.totalQuantity;
+                        return formatCurrency(calculated);
+                      }
+                      return "N/A";
+                    })()}
+                  </TableCell>
                   <TableCell className={`p-3 ${p.unrealizedPnL && p.unrealizedPnL >= 0 ? "text-green-primary" : "text-red-primary"}`}>
                     {p.unrealizedPnL !== undefined ? (
                       <>
@@ -122,7 +142,18 @@ export const PositionsTable: React.FC = () => {
       {showModal && (
         <PositionFormModal
           positionId={editId}
-          onClose={() => setShowModal(false)}
+          onClose={async () => {
+            setShowModal(false);
+            // Force refresh positions list after update
+            queryClient.invalidateQueries({ queryKey: ["positions"] });
+            if (editId) {
+              queryClient.invalidateQueries({ queryKey: ["positions", editId] });
+            }
+            // Refetch after a short delay to ensure backend has processed
+            setTimeout(() => {
+              refetch();
+            }, 300);
+          }}
         />
       )}
 

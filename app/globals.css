@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 /* Design Tokens - Trading Platform */
 :root {
@@ -7,16 +7,16 @@
   --color-dark-surface: #121212;
   --color-dark-elevated: #1a1a1a;
   --color-dark-border: #2a2a2a;
-  
+
   --color-green-primary: #00ff88;
   --color-green-hover: #00cc6f;
   --color-red-primary: #ff4444;
   --color-red-hover: #cc3333;
-  
+
   --color-text-primary: #ffffff;
   --color-text-secondary: #a3a3a3;
   --color-text-tertiary: #737373;
-  
+
   /* Spacing */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
@@ -26,11 +26,11 @@
   --spacing-2xl: 32px;
   --spacing-3xl: 48px;
   --spacing-4xl: 64px;
-  
+
   /* Typography */
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'SF Mono', Monaco, monospace;
-  
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "SF Mono", Monaco, monospace;
+
   /* Transitions */
   --transition-fast: 150ms;
   --transition-normal: 250ms;
@@ -38,8 +38,8 @@
 }
 
 * {
-  margin: 0;
-  padding: 0;
+  margin: 3px;
+  padding: 3px;
   box-sizing: border-box;
 }
 
@@ -53,11 +53,12 @@ body {
   font-family: var(--font-sans);
   background-color: var(--color-dark-base);
   color: var(--color-text-primary);
-  line-height: 1.5;
+  line-height: 1.6;
   min-height: 100vh;
   overflow-x: hidden;
   padding: 0;
   margin: 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Safe area for mobile devices */
@@ -83,14 +84,103 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Neon hover effect */
+/* Neon hover effect with colorful glow */
 .neon-hover {
   transition: all var(--transition-normal) ease;
 }
 
 .neon-hover:hover {
   border-color: var(--color-green-primary);
-  box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.3), 0 0 40px rgba(0, 255, 136, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Colorful gradient backgrounds */
+.gradient-bg-primary {
+  background: linear-gradient(
+    135deg,
+    var(--color-green-primary) 0%,
+    var(--color-green-hover) 100%
+  );
+}
+
+.gradient-bg-rainbow {
+  background: linear-gradient(
+    135deg,
+    #00ff88 0%,
+    #00ffff 25%,
+    #0088ff 50%,
+    #ff00ff 75%,
+    #ff8800 100%
+  );
+}
+
+.gradient-text {
+  background: linear-gradient(
+    135deg,
+    var(--color-green-primary) 0%,
+    var(--color-green-hover) 50%,
+    #00ffff 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Colorful card glow effects */
+.card-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-glow::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    var(--color-green-primary) 33 0%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+}
+
+.card-glow:hover::before {
+  opacity: 1;
+}
+
+/* Animated gradient border */
+.gradient-border {
+  position: relative;
+  background: var(--color-dark-elevated);
+  border-radius: 12px;
+}
+
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  padding: 2px;
+  background: linear-gradient(
+    135deg,
+    var(--color-green-primary),
+    #00ffff,
+    #ff00ff
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+}
+
+.gradient-border:hover::before {
+  opacity: 1;
 }
 
 /* Scrollbar styling */
@@ -115,7 +205,7 @@ body {
 /* Number formatting - tabular numbers */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
-  font-feature-settings: 'tnum';
+  font-feature-settings: "tnum";
 }
 
 /* Focus styles */
@@ -124,10 +214,20 @@ body {
   outline-offset: 2px;
 }
 
-/* Selection */
+/* Selection with gradient */
 ::selection {
-  background-color: var(--color-green-primary);
+  background: linear-gradient(135deg, var(--color-green-primary), #00ffff);
   color: var(--color-dark-base);
+}
+
+/* Colorful scrollbar */
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--color-green-primary), #00ffff);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #00ffff, #ff00ff);
 }
 
 /* Mobile optimizations */
@@ -141,7 +241,8 @@ body {
 
 /* Loading animation */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -256,4 +357,3 @@ button:disabled {
 .animate-spin {
   animation: spin 1s linear infinite;
 }
-

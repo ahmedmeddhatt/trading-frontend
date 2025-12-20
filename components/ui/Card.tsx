@@ -17,9 +17,9 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
 
     const paddings = {
       none: "p-0",
-      sm: "p-3 md:p-4",
-      md: "p-4 md:p-6",
-      lg: "p-6 md:p-8",
+      sm: "p-4 sm:p-5 md:p-6",
+      md: "p-5 sm:p-6 md:p-7 lg:p-8",
+      lg: "p-6 sm:p-8 md:p-10 lg:p-12",
     };
 
     return (
@@ -29,9 +29,15 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
           "rounded-xl transition-all duration-250",
           variants[variant],
           paddings[padding],
-          variant === "default" && "neon-hover",
+          variant === "default" && "neon-hover card-glow",
+          variant === "elevated" && "hover:shadow-2xl hover:shadow-green-primary/20",
           className
         )}
+        style={{
+          ...(variant === "elevated" && {
+            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+          }),
+        }}
         {...props}
       >
         {children}
