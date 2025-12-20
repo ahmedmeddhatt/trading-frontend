@@ -55,7 +55,7 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({
     });
 
     // Main performance series
-    const series = chart.addLineSeries({
+    const series = chart.addSeries(LineSeries, {
       color: chartColorSchemes.neon.green,
       lineWidth: 2,
       title: label,
@@ -68,7 +68,7 @@ export const PerformanceChart: React.FC<PerformanceChartProps> = ({
 
     // Benchmark series (if provided)
     if (benchmarkData) {
-      const benchmarkSeries = chart.addLineSeries({
+      const benchmarkSeries = chart.addSeries(LineSeries, {
         color: chartColorSchemes.neon.cyan,
         lineWidth: 2,
         title: benchmarkLabel,
