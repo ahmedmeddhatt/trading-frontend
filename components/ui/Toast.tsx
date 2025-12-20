@@ -1,5 +1,5 @@
 // components/ui/Toast.tsx
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, CheckCircle2, AlertCircle, Info, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -33,10 +33,12 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const counterRef = useRef(0);
 
   const addToast = useCallback(
     (message: string, type: ToastType = "info", duration = 5000) => {
-      const id = Math.random().toString(36).substring(7);
+      // Use counter instead of Math.random() to avoid hydration mismatch
+      const id = `toast-${Date.now()}-${++counterRef.current}`;
       const toast: Toast = { id, message, type, duration };
       setToasts((prev) => [...prev, toast]);
 
