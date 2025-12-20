@@ -86,10 +86,31 @@ export const useUpdatePosition = () => {
     mutationFn: ({ id, data }: { id: string; data: Partial<PositionPayload> }) =>
       PositionsAPI.update(id, data),
     onSuccess: (updatedPosition) => {
-      queryClient.setQueryData(["positions", updatedPosition._id], updatedPosition);
+      // Calculate currentValue if not provided by backend
+      const positionWithValue = {
+        ...updatedPosition,
+        currentValue: updatedPosition.currentValue !== undefined && updatedPosition.currentValue !== null
+          ? updatedPosition.currentValue
+          : (updatedPosition.currentPrice && updatedPosition.totalQuantity
+              ? updatedPosition.currentPrice * updatedPosition.totalQuantity
+              : updatedPosition.currentValue),
+      };
+      
+      // Update the specific position in cache
+      queryClient.setQueryData(["positions", positionWithValue._id], positionWithValue);
+      
+      // Update in positions list
+      queryClient.setQueryData<Position[]>(["positions"], (old) => {
+        if (!old) return old;
+        return old.map((p) => (p._id === positionWithValue._id ? positionWithValue : p));
+      });
+      
+      // Invalidate all related queries to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ["positions"] });
+      queryClient.invalidateQueries({ queryKey: ["positions", positionWithValue._id] });
       queryClient.invalidateQueries({ queryKey: ["analytics"] });
       queryClient.invalidateQueries({ queryKey: ["companies"] });
+      
       addToast("Position updated successfully", "success");
     },
     onError: (err) => {

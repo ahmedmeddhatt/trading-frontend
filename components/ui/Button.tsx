@@ -28,15 +28,15 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const variants = {
       primary:
-        "bg-gradient-to-r from-green-primary to-green-hover hover:from-green-hover hover:to-green-primary text-dark-base font-semibold",
+        "bg-gradient-to-r from-green-primary to-green-hover hover:from-green-hover hover:to-green-primary text-dark-base font-semibold shadow-lg hover:shadow-xl hover:shadow-green-primary/50 transition-all",
       secondary:
-        "bg-dark-elevated hover:bg-dark-border text-text-primary border border-dark-border",
+        "bg-dark-elevated hover:bg-dark-border text-text-primary border border-dark-border hover:border-green-primary hover:shadow-lg hover:shadow-green-primary/20 transition-all",
       danger:
-        "bg-red-primary hover:bg-red-hover text-text-primary",
+        "bg-gradient-to-r from-red-primary to-red-hover hover:from-red-hover hover:to-red-primary text-text-primary shadow-lg hover:shadow-xl hover:shadow-red-primary/50 transition-all",
       ghost:
-        "bg-transparent hover:bg-dark-elevated text-text-primary",
+        "bg-transparent hover:bg-dark-elevated text-text-primary hover:text-green-primary transition-all",
       outline:
-        "bg-transparent border border-dark-border hover:border-green-primary text-text-primary hover:text-green-primary",
+        "bg-transparent border-2 border-dark-border hover:border-green-primary text-text-primary hover:text-green-primary hover:shadow-lg hover:shadow-green-primary/20 transition-all",
     };
 
     const sizes = {

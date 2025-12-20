@@ -4,6 +4,7 @@ import { ReactNode, useEffect } from "react";
 import { logger } from "@/lib/utils/logger";
 import { ReactQueryProvider } from "@/lib/react-query/provider";
 import { ToastProvider } from "@/components/ui/Toast";
+import { ThemeProvider } from "@/lib/themes/ThemeProvider";
 import { AppInitializer } from "./AppInitializer";
 
 export function Providers({ children }: { children: ReactNode }) {
@@ -17,9 +18,11 @@ export function Providers({ children }: { children: ReactNode }) {
 
   return (
     <ReactQueryProvider>
-      <ToastProvider>
-        <AppInitializer>{children}</AppInitializer>
-      </ToastProvider>
+      <ThemeProvider>
+        <ToastProvider>
+          <AppInitializer>{children}</AppInitializer>
+        </ToastProvider>
+      </ThemeProvider>
     </ReactQueryProvider>
   );
 }

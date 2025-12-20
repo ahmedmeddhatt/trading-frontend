@@ -23,19 +23,35 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
   return (
     <Card 
       variant="elevated" 
-      className="hover:border-green-primary/50 hover:shadow-lg hover:shadow-green-primary/10 transition-all duration-normal group"
+      className={cn(
+        "hover:border-green-primary/50 hover:shadow-xl transition-all duration-normal group",
+        "relative overflow-hidden",
+        isPositive && "hover:shadow-green-primary/30",
+        isNegative && "hover:shadow-red-primary/30"
+      )}
     >
-      <p className="text-text-secondary text-sm mb-2 group-hover:text-text-primary transition-colors duration-normal">
-        {title}
-      </p>
-      <p className={cn(
-        "text-2xl font-bold tabular-nums transition-all duration-normal",
-        isPositive && "text-green-primary group-hover:scale-105",
-        isNegative && "text-red-primary group-hover:scale-105",
-        !isPositive && !isNegative && "text-text-primary"
-      )}>
-        {currency ? formatCurrency(value) : formatPercentage(value)}
-      </p>
+      {/* Gradient overlay on hover */}
+      <div className={cn(
+        "absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-normal",
+        isPositive && "bg-gradient-to-br from-green-primary to-green-hover",
+        isNegative && "bg-gradient-to-br from-red-primary to-red-hover",
+        !isPositive && !isNegative && "bg-gradient-to-br from-green-primary to-cyan-400"
+      )} />
+      
+      <div className="relative z-10">
+        <p className="text-text-secondary text-sm mb-2 group-hover:text-text-primary transition-colors duration-normal font-medium">
+          {title}
+        </p>
+        <p className={cn(
+          "text-2xl md:text-3xl font-bold tabular-nums transition-all duration-normal",
+          "group-hover:scale-105 inline-block",
+          isPositive && "text-green-primary",
+          isNegative && "text-red-primary",
+          !isPositive && !isNegative && "text-text-primary"
+        )}>
+          {currency ? formatCurrency(value) : formatPercentage(value)}
+        </p>
+      </div>
     </Card>
   );
 };

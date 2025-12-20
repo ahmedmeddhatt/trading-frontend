@@ -102,13 +102,87 @@ api.interceptors.response.use(
 
     // Log full error response for 500 errors to help debugging
     if (status === 500) {
-      console.error("Backend 500 Error Details:", {
+      const errorInfo: Record<string, any> = {
+        timestamp: new Date().toISOString(),
         url: fullUrl,
         method,
-        requestData: error.config?.data ? JSON.parse(error.config.data) : null,
-        responseData: error.response?.data,
-        responseStatus: error.response?.status,
-      });
+        responseStatus: error.response?.status || "unknown",
+        responseStatusText: error.response?.statusText || "unknown",
+      };
+
+      // Capture request data
+      try {
+        if (error.config?.data) {
+          if (typeof error.config.data === "string") {
+            try {
+              errorInfo.requestData = JSON.parse(error.config.data);
+            } catch {
+              errorInfo.requestData = error.config.data; // Use raw string if not JSON
+            }
+          } else {
+            errorInfo.requestData = error.config.data;
+          }
+        } else {
+          errorInfo.requestData = "(no request data)";
+        }
+      } catch (e) {
+        errorInfo.requestData = `(error parsing: ${e})`;
+      }
+
+      // Capture response data
+      try {
+        if (error.response?.data !== undefined && error.response?.data !== null) {
+          if (typeof error.response.data === "object") {
+            const keys = Object.keys(error.response.data);
+            if (keys.length > 0) {
+              errorInfo.responseData = error.response.data;
+            } else {
+              errorInfo.responseData = "(empty object)";
+            }
+          } else if (typeof error.response.data === "string") {
+            errorInfo.responseData = error.response.data || "(empty string)";
+          } else {
+            errorInfo.responseData = String(error.response.data);
+          }
+        } else {
+          errorInfo.responseData = "(no response data)";
+        }
+      } catch (e) {
+        errorInfo.responseData = `(error accessing: ${e})`;
+      }
+
+      // Capture response headers
+      try {
+        if (error.response?.headers) {
+          errorInfo.responseHeaders = error.response.headers;
+        } else {
+          errorInfo.responseHeaders = "(no headers)";
+        }
+      } catch (e) {
+        errorInfo.responseHeaders = `(error accessing: ${e})`;
+      }
+
+      // Capture error message and stack
+      errorInfo.errorMessage = error.message || "(no error message)";
+      if (error.stack) {
+        errorInfo.errorStack = error.stack.split("\n").slice(0, 5).join("\n"); // First 5 lines
+      }
+
+      // Capture request config details
+      try {
+        errorInfo.requestConfig = {
+          baseURL: error.config?.baseURL || "(not set)",
+          url: error.config?.url || "(not set)",
+          method: error.config?.method || "(not set)",
+          timeout: error.config?.timeout || "(not set)",
+          headers: error.config?.headers || "(not set)",
+        };
+      } catch (e) {
+        errorInfo.requestConfig = `(error accessing: ${e})`;
+      }
+
+      console.error("Backend 500 Error Details:", errorInfo);
+      console.error("Full Error Object:", error);
     }
 
     // Handle 401 Unauthorized - clear token and redirect to login

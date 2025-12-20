@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
@@ -18,6 +19,7 @@ export const PositionFormModal: React.FC<Props> = ({ positionId, onClose }) => {
   const { data: existing } = usePosition(positionId || "");
   const createMutation = useCreatePosition();
   const updateMutation = useUpdatePosition();
+  const queryClient = useQueryClient();
 
   const [companyName, setCompanyName] = useState("");
   const [currentPrice, setCurrentPrice] = useState(0);
@@ -57,12 +59,17 @@ export const PositionFormModal: React.FC<Props> = ({ positionId, onClose }) => {
     try {
       const data: PositionPayload = {
         companyName: companyName.trim(),
-        ...(currentPrice > 0 && { currentPrice }),
+        currentPrice: currentPrice || 0, // Always include currentPrice, even if 0
         status,
       };
       
       if (positionId) {
         await updateMutation.mutateAsync({ id: positionId, data });
+        // Force immediate cache invalidation and refetch
+        queryClient.invalidateQueries({ queryKey: ["positions", positionId] });
+        queryClient.invalidateQueries({ queryKey: ["positions"] });
+        // Small delay to ensure backend has processed the update
+        await new Promise(resolve => setTimeout(resolve, 200));
       } else {
         await createMutation.mutateAsync(data);
       }

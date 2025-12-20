@@ -7,7 +7,7 @@ import { Heading } from "@/components/ui/Heading";
 import { Error } from "@/components/ui/Error";
 import { getErrorMessage } from "@/lib/utils/errorUtils";
 import { useTransactions } from "@/hooks/api/useTransactions";
-import { useEffect } from "react";
+import { useEffect, use } from "react";
 import { logger } from "@/lib/utils/logger";
 import { Skeleton } from "@/components/ui/Skeleton";
 import dynamic from "next/dynamic";
@@ -19,22 +19,21 @@ const TransactionsTable = dynamic(() => import("@/components/transactions/Transa
 });
 
 interface TransactionsPageProps {
-  params: {
+  params: Promise<{
     positionId: string;
-  };
+  }>;
 }
 
 export default function TransactionsPage({ params }: TransactionsPageProps) {
-  const { positionId } = params;
+  const { positionId } = use(params);
   const { data: transactions = [], isLoading, error } = useTransactions(positionId);
 
   useEffect(() => {
     logger.page("Transactions", {
       pathname: window.location.pathname,
       positionId,
-      params,
     });
-  }, [positionId, params]);
+  }, [positionId]);
 
   if (isLoading) {
     return (

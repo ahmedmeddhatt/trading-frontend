@@ -3,7 +3,7 @@
 import { useCompanyAnalytics } from "@/hooks/api/useAnalytics";
 import { usePositions } from "@/hooks/api/usePositions";
 import { useTransactionAnalytics } from "@/hooks/analytics/useTransactionAnalytics";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, use } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -34,13 +34,13 @@ const TimelineChart = dynamic(
 );
 
 interface CompanyPageProps {
-  params: {
+  params: Promise<{
     companyName: string;
-  };
+  }>;
 }
 
 export default function CompanyPage({ params }: CompanyPageProps) {
-  const { companyName } = params;
+  const { companyName } = use(params);
   const decodedName = decodeURIComponent(companyName);
   const { data: companyAnalytics, isLoading, error } = useCompanyAnalytics(decodedName);
   const { data: positions = [] } = usePositions();
@@ -50,9 +50,8 @@ export default function CompanyPage({ params }: CompanyPageProps) {
     logger.page("Company", {
       pathname: window.location.pathname,
       companyName: decodedName,
-      params,
     });
-  }, [companyName, params, decodedName]);
+  }, [decodedName]);
 
   // Get company positions
   const companyPositions = useMemo(() => {
@@ -128,8 +127,8 @@ export default function CompanyPage({ params }: CompanyPageProps) {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-text-secondary">Return %</span>
-                      <span className={`font-semibold ${companyAnalytics.unrealizedPct >= 0 ? "text-green-primary" : "text-red-primary"}`}>
-                        {companyAnalytics.unrealizedPct.toFixed(2)}%
+                      <span className={`font-semibold ${(companyAnalytics.unrealizedPct ?? 0) >= 0 ? "text-green-primary" : "text-red-primary"}`}>
+                        {(companyAnalytics.unrealizedPct ?? 0).toFixed(2)}%
                       </span>
                     </div>
                     <div className="flex justify-between">
