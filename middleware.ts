@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+// Note: In Next.js 15+, middleware is deprecated in favor of proxy
+// This file is kept for backward compatibility but may need migration
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   

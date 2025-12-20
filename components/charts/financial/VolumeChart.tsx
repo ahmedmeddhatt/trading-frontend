@@ -50,16 +50,12 @@ export const VolumeChart: React.FC<VolumeChartProps> = ({ data, height = 300, sh
       },
     });
 
-    const series = chart.addHistogramSeries({
+    const series = chart.addSeries(HistogramSeries, {
       color: showBuySell ? chartColorSchemes.neon.cyan : chartColorSchemes.neon.green,
       priceFormat: {
         type: "volume",
       },
       priceScaleId: "",
-      scaleMargins: {
-        top: 0.8,
-        bottom: 0,
-      },
     });
 
     chartRef.current = chart;

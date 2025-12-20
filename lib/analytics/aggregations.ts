@@ -115,7 +115,16 @@ export const aggregateByCompany = (positions: Position[]): CompanyAggregation[] 
 export const aggregateTransactionsByTime = (
   transactions: Transaction[],
   period: "daily" | "weekly" | "monthly" | "yearly"
-): Array<{ date: string; buyCount: number; sellCount: number; buyVolume: number; sellVolume: number; totalFees: number }> => {
+): Array<{ 
+  date: string; 
+  buyCount: number; 
+  sellCount: number; 
+  buyVolume: number; 
+  sellVolume: number; 
+  buyValue: number;
+  sellValue: number;
+  totalFees: number;
+}> => {
   if (transactions.length === 0) return [];
   
   const sorted = [...transactions].sort((a, b) => 
@@ -161,6 +170,8 @@ export const aggregateTransactionsByTime = (
       sellCount: sellTransactions.length,
       buyVolume: buyTransactions.reduce((sum, t) => sum + t.quantity, 0),
       sellVolume: sellTransactions.reduce((sum, t) => sum + t.quantity, 0),
+      buyValue: buyTransactions.reduce((sum, t) => sum + (t.total || 0), 0),
+      sellValue: sellTransactions.reduce((sum, t) => sum + (t.total || 0), 0),
       totalFees: periodTransactions.reduce((sum, t) => sum + (t.fees || 0), 0),
     };
   });
