@@ -15,6 +15,7 @@ import { logger } from "@/lib/utils/logger";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ChartCard } from "@/components/charts/shared/ChartCard";
 import { formatCurrency } from "@/lib/utils/formatNumber";
+import { formatDateShort } from "@/lib/utils/dateFormat";
 import dynamic from "next/dynamic";
 
 // Lazy load company components
@@ -65,7 +66,7 @@ export default function CompanyPage({ params }: CompanyPageProps) {
     // Get transaction data for this company's positions
     // For now, we'll use aggregated data - in a real scenario, you'd filter by position
     return transactionAnalytics.dailyAggregation.slice(-30).map((item) => ({
-      date: new Date(item.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      date: formatDateShort(new Date(item.date)),
       buyValue: item.buyValue / companyPositions.length, // Approximate per company
       sellValue: item.sellValue / companyPositions.length,
       netValue: (item.buyValue - item.sellValue) / companyPositions.length,

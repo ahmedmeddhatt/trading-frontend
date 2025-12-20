@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { getErrorMessage } from "@/lib/utils/errorUtils";
 import { formatCurrency, formatPercentage } from "@/lib/utils/formatNumber";
+import { formatDateShort } from "@/lib/utils/dateFormat";
 import { ChartCard } from "@/components/charts/shared/ChartCard";
 import Link from "next/link";
 import React from "react";
@@ -70,7 +71,7 @@ export default function DashboardPage() {
   const recentTransactionData = React.useMemo(() => {
     if (!transactionAnalytics?.dailyAggregation) return [];
     return transactionAnalytics.dailyAggregation.slice(-7).map((item) => ({
-      date: new Date(item.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      date: formatDateShort(new Date(item.date)),
       buyVolume: item.buyValue,
       sellVolume: item.sellValue,
       buyCount: item.buyCount,

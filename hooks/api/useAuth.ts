@@ -85,16 +85,71 @@ export const useLogout = () => {
 
   return useMutation({
     mutationFn: async () => {
+      console.log("🔄 [LOGOUT MUTATION] mutationFn called");
+      const tokenBefore = localStorage.getItem("token");
+      console.log("🔄 [LOGOUT MUTATION] Token before:", tokenBefore ? "EXISTS" : "NULL");
+      
+      // Clear token and auth headers
       localStorage.removeItem("token");
       if (api.defaults.headers) {
         delete api.defaults.headers.Authorization;
       }
+      console.log("🔄 [LOGOUT MUTATION] Token removed, headers cleared");
+      
+      // Clear auth store
       logout();
+      console.log("🔄 [LOGOUT MUTATION] Auth store cleared");
+      
+      // Clear all query cache
       queryClient.clear();
+      console.log("🔄 [LOGOUT MUTATION] Query cache cleared");
+      
+      const tokenAfter = localStorage.getItem("token");
+      console.log("🔄 [LOGOUT MUTATION] Token after:", tokenAfter ? "STILL EXISTS ❌" : "REMOVED ✅");
+      console.log("✅ [LOGOUT MUTATION] mutationFn completed");
+      
+      // Return success
+      return Promise.resolve();
     },
     onSuccess: () => {
+      console.log("✅ [LOGOUT MUTATION] onSuccess called");
       addToast("Logged out successfully", "success");
+      
+      // Clear all queries immediately
+      queryClient.removeQueries();
+      console.log("🔄 [LOGOUT MUTATION] All queries removed");
+      
+      // Navigate immediately - router should work
+      console.log("🔄 [LOGOUT MUTATION] Navigating to /login via router...");
       router.push("/login");
+      
+      // Force navigation as fallback after a short delay
+      setTimeout(() => {
+        if (typeof window !== "undefined") {
+          const currentPath = window.location.pathname;
+          console.log("🔄 [LOGOUT MUTATION] Checking navigation... Current path:", currentPath);
+          if (currentPath !== "/login") {
+            console.log("⚠️ [LOGOUT MUTATION] Router didn't work, forcing with window.location");
+            window.location.href = "/login";
+          } else {
+            console.log("✅ [LOGOUT MUTATION] Successfully navigated to /login");
+          }
+        }
+      }, 300);
+    },
+    onError: (error: any) => {
+      console.error("❌ [LOGOUT MUTATION] onError:", error);
+      addToast(error?.message || "Logout failed", "error");
+      
+      // Even on error, try to redirect to login
+      console.log("🔄 [LOGOUT MUTATION] Attempting fallback navigation...");
+      setTimeout(() => {
+        router.push("/login");
+        if (window.location.pathname !== "/login") {
+          console.log("🔄 [LOGOUT MUTATION] Forcing navigation with window.location");
+          window.location.href = "/login";
+        }
+      }, 100);
     },
   });
 };

@@ -1,7 +1,7 @@
 // Enhanced select component with validation
 "use client";
 
-import React, { forwardRef } from "react";
+import React, { forwardRef, useId } from "react";
 import { cn } from "@/lib/utils";
 import { AlertCircle, ChevronDown } from "lucide-react";
 
@@ -14,7 +14,8 @@ export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ({ label, error, helperText, options, className, id, ...props }, ref) => {
-    const selectId = id || `select-${Math.random().toString(36).substring(7)}`;
+    const generatedId = useId();
+    const selectId = id || `select-${generatedId}`;
 
     return (
       <div className="w-full">
